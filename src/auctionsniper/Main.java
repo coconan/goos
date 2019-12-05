@@ -10,7 +10,7 @@ import javax.swing.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
-public class Main implements SniperListener {
+public class Main {
     private static final int ARG_HOSTNAME = 0;
     private static final int ARG_USERNAME = 1;
     private static final int ARG_PASSWORD = 2;
@@ -46,19 +46,9 @@ public class Main implements SniperListener {
         this.notToBeGCd = chat;
 
         Auction auction = new XMPPAuction(chat);
-        chat.addMessageListener(new AuctionMessageTranslator(new AuctionSniper(auction, this)));
+        chat.addMessageListener(new AuctionMessageTranslator(new AuctionSniper(auction, new SniperStateDisplayer())));
 
         auction.join();
-    }
-
-    @Override
-    public void sniperLost() {
-        SwingUtilities.invokeLater(() -> ui.showStatus(SniperState.LOST));
-    }
-
-    @Override
-    public void sniperBidding() {
-        SwingUtilities.invokeLater(() -> ui.showStatus(SniperState.BIDDING));
     }
 
     private static XMPPConnection connectTo(String hostname, String username, String password) throws XMPPException {
@@ -108,6 +98,23 @@ public class Main implements SniperListener {
             } catch (XMPPException e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    public class SniperStateDisplayer implements SniperListener {
+
+        @Override
+        public void sniperLost() {
+            showStatus(SniperState.LOST);
+        }
+
+        @Override
+        public void sniperBidding() {
+            showStatus(SniperState.BIDDING);
+        }
+
+        private void showStatus(final String status) {
+            SwingUtilities.invokeLater(() -> ui.showStatus(status));
         }
     }
 }
