@@ -17,4 +17,6 @@
 4. [ ] single item-show price details
 5. [ ] multiple items
 6. [ ] add new items through the GUI
-7. [ ] Stop bidding at stop price 
+7. [ ] Stop bidding at stop price
+8. [ ] translator - invalid message from Auction
+9. [ ] translator - incorrect message version
