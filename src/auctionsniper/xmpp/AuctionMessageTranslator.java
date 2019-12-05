@@ -8,11 +8,15 @@ import org.jivesoftware.smack.packet.Message;
 import java.util.HashMap;
 import java.util.Map;
 
-public class AuctionMessageTranslator implements MessageListener {
+import static auctionsniper.AuctionEventListener.PriceSource.FromOtherBidder;
+import static auctionsniper.AuctionEventListener.PriceSource.FromSniper;
 
+public class AuctionMessageTranslator implements MessageListener {
+    private String sniperId;
     private AuctionEventListener listener;
 
-    public AuctionMessageTranslator(AuctionEventListener listener) {
+    public AuctionMessageTranslator(String sniperId, AuctionEventListener listener) {
+        this.sniperId = sniperId;
         this.listener = listener;
     }
 
@@ -24,7 +28,7 @@ public class AuctionMessageTranslator implements MessageListener {
         if ("CLOSE".equals(eventType)) {
             listener.auctionClosed();
         } else if ("PRICE".equals(eventType)) {
-            listener.currentPrice(event.currentPrice(), event.increment());
+            listener.currentPrice(event.currentPrice(), event.increment(), event.isFrom(sniperId));
         }
     }
 
@@ -41,6 +45,14 @@ public class AuctionMessageTranslator implements MessageListener {
 
         public int increment() {
             return getInt("Increment");
+        }
+
+        public AuctionEventListener.PriceSource isFrom(String sniperId) {
+            return sniperId.equals(bidder()) ? FromSniper : FromOtherBidder;
+        }
+
+        private String bidder() {
+            return get("Bidder");
         }
 
         private int getInt(String fieldName) {

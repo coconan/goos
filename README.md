@@ -13,10 +13,11 @@
 
 1. [X] single item-join, lose without bidding 
 2. [X] single item-join, bid & lose
-3. [ ] single item-join, bid & win
+3. [X] single item-join, bid & win
 4. [ ] single item-show price details
 5. [ ] multiple items
 6. [ ] add new items through the GUI
 7. [ ] Stop bidding at stop price
 8. [ ] translator - invalid message from Auction
 9. [ ] translator - incorrect message version
+10. [ ] auction - handle XMPPException on send
