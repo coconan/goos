@@ -12,7 +12,7 @@
 ## 待办清单
 
 1. [X] single item-join, lose without bidding 
-2. [ ] single item-join, bid & lose
+2. [X] single item-join, bid & lose
 3. [ ] single item-join, bid & win
 4. [ ] single item-show price details
 5. [ ] multiple items
