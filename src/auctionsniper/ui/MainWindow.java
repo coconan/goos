@@ -7,14 +7,14 @@ import javax.swing.*;
 import java.awt.*;
 
 public class MainWindow extends JFrame {
-    public static final String MAIN_WINDOW_NAME = "Auction Sniper";
+    public static final String APPLICATION_TITLE = "Auction Sniper";
     private static final String SNIPERS_TABLE_NAME = "Snipers table";
     private final SnipersTableModel snipers;
 
     public MainWindow(String itemId, SnipersTableModel snipers) {
         super("Auction Sniper");
         this.snipers = snipers;
-        setName(MAIN_WINDOW_NAME);
+        setName(APPLICATION_TITLE);
         fillContentPane(makeSnipersTable());
         pack();
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
