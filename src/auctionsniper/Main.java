@@ -26,12 +26,12 @@ public class Main {
     private MainWindow ui;
     private Chat notToBeGCd;
 
-    public Main() throws Exception {
-        startUserInterface();
+    public Main(String itemId) throws Exception {
+        startUserInterface(itemId);
     }
 
     public static void main(String... args) throws Exception {
-        Main main = new Main();
+        Main main = new Main(args[ARG_ITEM_ID]);
         main.joinAuction(
                 connectTo(args[ARG_HOSTNAME], args[ARG_USERNAME], args[ARG_PASSWORD]),
                 args[ARG_ITEM_ID]
@@ -47,7 +47,7 @@ public class Main {
 
         Auction auction = new XMPPAuction(chat);
         chat.addMessageListener(new AuctionMessageTranslator(connection.getUser(),
-                new AuctionSniper(auction, new SniperStateDisplayer())));
+                new AuctionSniper(itemId, auction, new SniperStateDisplayer())));
 
         auction.join();
     }
@@ -73,8 +73,8 @@ public class Main {
         return String.format(AUCTION_ID_FORMAT, itemId, connection.getServiceName());
     }
 
-    private void startUserInterface() throws Exception {
-        SwingUtilities.invokeAndWait(() -> ui = new MainWindow());
+    private void startUserInterface(String itemId) throws Exception {
+        SwingUtilities.invokeAndWait(() -> ui = new MainWindow(itemId));
     }
 
     public static class XMPPAuction implements Auction {
@@ -106,26 +106,21 @@ public class Main {
 
         @Override
         public void sniperLost() {
-            showStatus(SniperState.LOST);
+            showStatus(MainWindow.STATUS_LOST);
         }
 
         @Override
         public void sniperWon() {
-            showStatus(SniperState.WON);
+            showStatus(MainWindow.STATUS_WON);
         }
 
         @Override
-        public void sniperWinning() {
-            showStatus(SniperState.WINNING);
-        }
-
-        @Override
-        public void sniperBidding() {
-            showStatus(SniperState.BIDDING);
+        public void sniperStateChanged(SniperSnapshot snapshot) {
+            ui.sniperStatusChanged(snapshot);
         }
 
         private void showStatus(final String status) {
-            SwingUtilities.invokeLater(() -> ui.showStatus(status));
+            SwingUtilities.invokeLater(() -> ui.showStatusText(status));
         }
     }
 }
