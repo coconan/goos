@@ -16,7 +16,7 @@
 3. [X] single item-join, bid & win
 4. [X] single item-show price details
 5. [X] multiple items
-6. [ ] add new items through the GUI
+6. [X] add new items through the GUI
 7. [ ] Stop bidding at stop price
 8. [ ] translator - invalid message from Auction
 9. [ ] translator - incorrect message version
