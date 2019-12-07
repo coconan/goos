@@ -11,6 +11,8 @@ import org.jivesoftware.smack.XMPPException;
 import javax.swing.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Main {
     private static final int ARG_HOSTNAME = 0;
@@ -27,7 +29,7 @@ public class Main {
 
     private final SnipersTableModel snipers = new SnipersTableModel();
     private MainWindow ui;
-    private Chat notToBeGCd;
+    private List<Chat> notToBeGCd = new ArrayList<>();
 
     public Main(String itemId) throws Exception {
         startUserInterface(itemId);
@@ -35,24 +37,27 @@ public class Main {
 
     public static void main(String... args) throws Exception {
         Main main = new Main(args[ARG_ITEM_ID]);
-        main.joinAuction(
-                connectTo(args[ARG_HOSTNAME], args[ARG_USERNAME], args[ARG_PASSWORD]),
-                args[ARG_ITEM_ID]
-        );
-
+        XMPPConnection connection = connectTo(args[ARG_HOSTNAME], args[ARG_USERNAME], args[ARG_PASSWORD]);
+        main.disconnectWhenUICloses(connection);
+        for (int i = 3; i < args.length; i++) {
+            main.joinAuction(connection, args[i]);
+        }
     }
 
-    private void joinAuction(XMPPConnection connection, String itemId) throws XMPPException {
-        disconnectWhenUICloses(connection);
-
+    private void joinAuction(XMPPConnection connection, String itemId) throws Exception {
+        safelyAddItemToModel(itemId);
         final Chat chat = connection.getChatManager().createChat(auctionId(itemId, connection), null);
-        this.notToBeGCd = chat;
+        this.notToBeGCd.add(chat);
 
         Auction auction = new XMPPAuction(chat);
         chat.addMessageListener(new AuctionMessageTranslator(connection.getUser(),
                 new AuctionSniper(itemId, auction, new SwingThreadSniperListener(snipers))));
 
         auction.join();
+    }
+
+    private void safelyAddItemToModel(final String itemId) throws Exception {
+        SwingUtilities.invokeAndWait(() -> snipers.addSniper(SniperSnapshot.joining(itemId)));
     }
 
     private static XMPPConnection connectTo(String hostname, String username, String password) throws XMPPException {

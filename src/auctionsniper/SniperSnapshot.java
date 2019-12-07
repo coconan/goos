@@ -33,6 +33,10 @@ public class SniperSnapshot {
         return new SniperSnapshot(itemId, lastPrice, lastBid, state.whenAuctionClosed());
     }
 
+    public boolean isForSameItemAs(SniperSnapshot sniperSnapshot) {
+        return itemId.equals(sniperSnapshot.itemId);
+    }
+
     @Override
     public boolean equals(Object obj) {
         return EqualsBuilder.reflectionEquals(this, obj);
