@@ -1,4 +1,4 @@
-package test.integeration.auctionsniper.ui;
+package test.integration.auctionsniper.ui;
 
 import auctionsniper.ui.MainWindow;
 import auctionsniper.ui.SnipersTableModel;
