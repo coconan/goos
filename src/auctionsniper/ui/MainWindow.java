@@ -8,10 +8,14 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.text.NumberFormat;
+
+import static auctionsniper.UserRequestListener.Item;
 
 public class MainWindow extends JFrame {
     public static final String APPLICATION_TITLE = "Auction Sniper";
     public static final String NEW_ITEM_ID_NAME = "item id";
+    public static final String NEW_ITEM_STOP_PRICE_NAME = "stop price";
     public static final String JOIN_BUTTON_NAME = "join button";
     private static final String SNIPERS_TABLE_NAME = "Snipers table";
     private final Announcer<UserRequestListener> userRequests = Announcer.to(UserRequestListener.class);
@@ -25,21 +29,35 @@ public class MainWindow extends JFrame {
         setVisible(true);
     }
 
+    public void addUserRequestListener(UserRequestListener userRequestListener) {
+        userRequests.addListener(userRequestListener);
+    }
+
     private JPanel makeControls() {
+        final JTextField itemIdField = itemIdField();
+        final JFormattedTextField stopPriceField = stopPriceField();
+
         JPanel controls = new JPanel(new FlowLayout());
-        final JTextField itemIdField = new JTextField();
-        itemIdField.setColumns(25);
-        itemIdField.setName(NEW_ITEM_ID_NAME);
         controls.add(itemIdField);
+        controls.add(stopPriceField);
 
         JButton joinAuctionButton = new JButton("Join Auction");
         joinAuctionButton.setName(JOIN_BUTTON_NAME);
         joinAuctionButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                userRequests.announce().joinAuction(itemIdField.getText());
+                userRequests.announce().joinAuction(new Item(itemId(), stopPrice()));
+            }
+
+            private String itemId() {
+                return itemIdField.getText();
+            }
+
+            private int stopPrice() {
+                return ((Number) stopPriceField.getValue()).intValue();
             }
         });
+
         controls.add(joinAuctionButton);
 
         return controls;
@@ -52,15 +70,25 @@ public class MainWindow extends JFrame {
         contentPane.add(new JScrollPane(snipersTable), BorderLayout.CENTER);
     }
 
+    private JTextField itemIdField() {
+        JTextField itemIdField = new JTextField();
+        itemIdField.setColumns(10);
+        itemIdField.setName(NEW_ITEM_ID_NAME);
+        return itemIdField;
+    }
+
+    private JFormattedTextField stopPriceField() {
+        JFormattedTextField stopPriceField = new JFormattedTextField(NumberFormat.getIntegerInstance());
+        stopPriceField.setColumns(7);
+        stopPriceField.setName(NEW_ITEM_STOP_PRICE_NAME);
+        return stopPriceField;
+    }
+
     private JTable makeSnipersTable(SniperPortfolio portfolio) {
         SnipersTableModel model = new SnipersTableModel();
         portfolio.addPortfolioListener(model);
         final JTable snipersTable = new JTable(model);
         snipersTable.setName(SNIPERS_TABLE_NAME);
         return snipersTable;
-    }
-
-    public void addUserRequestListener(UserRequestListener userRequestListener) {
-        userRequests.addListener(userRequestListener);
     }
 }

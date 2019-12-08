@@ -9,6 +9,8 @@ import org.jmock.integration.junit4.JMock;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import static auctionsniper.UserRequestListener.Item;
+
 @RunWith(JMock.class)
 public class SniperPortfolioTest {
     private final Mockery context = new Mockery();
@@ -17,7 +19,7 @@ public class SniperPortfolioTest {
 
     @Test
     public void notifiesListenersOfNewSnipers() {
-        final AuctionSniper sniper = new AuctionSniper("item id", null);
+        final AuctionSniper sniper = new AuctionSniper(new Item("item id", 123), null);
         context.checking(new Expectations() {{
             oneOf(listener).sniperAdded(sniper);
         }});

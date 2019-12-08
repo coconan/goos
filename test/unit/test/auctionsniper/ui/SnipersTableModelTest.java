@@ -15,6 +15,7 @@ import org.junit.runner.RunWith;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 
+import static auctionsniper.UserRequestListener.Item;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.beans.SamePropertyValuesAs.samePropertyValuesAs;
@@ -27,7 +28,7 @@ public class SnipersTableModelTest {
     private final Mockery context = new Mockery();
     private TableModelListener listener = context.mock(TableModelListener.class);
     private final SnipersTableModel model = new SnipersTableModel();
-    private final AuctionSniper sniper = new AuctionSniper(ITEM_ID, null);
+    private final AuctionSniper sniper = new AuctionSniper(new Item(ITEM_ID, 234), null);
 
     @Before
     public void attachModelListener() {
@@ -76,7 +77,7 @@ public class SnipersTableModelTest {
 
     @Test
     public void holdsSnipersInAdditionOrder() {
-        AuctionSniper sniper2 = new AuctionSniper("item 1", null);
+        AuctionSniper sniper2 = new AuctionSniper(new Item("item 1", 345), null);
         context.checking(new Expectations(){{
             ignoring(listener);
         }});

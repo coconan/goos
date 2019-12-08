@@ -22,6 +22,11 @@ public class SniperStateTest {
         assertEquals(SniperState.WON, SniperState.WINNING.whenAuctionClosed());
     }
 
+    @Test
+    public void isLostWhenAuctionClosesWhileLosing() {
+        assertEquals(SniperState.LOST, SniperState.LOSING.whenAuctionClosed());
+    }
+
     @Test(expected = Defect.class)
     public void defectIfAuctionClosesWhenWon() {
         SniperState.WON.whenAuctionClosed();
