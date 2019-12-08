@@ -9,18 +9,17 @@ import org.jivesoftware.smack.XMPPException;
 
 import static auctionsniper.Main.BID_COMMAND_FORMAT;
 import static auctionsniper.Main.JOIN_COMMAND_FORMAT;
-import static auctionsniper.xmpp.XMPPAuctionHouse.auctionId;
 
 public class XMPPAuction implements Auction {
     private final Announcer<AuctionEventListener> auctionEventListeners = Announcer.to(AuctionEventListener.class);
     private final Chat chat;
+    private final XMPPFailureReporter failureReporter;
 
-    public XMPPAuction(XMPPConnection connection, String itemId) {
-        chat = connection.getChatManager().createChat(
-                auctionId(itemId, connection),
-                new AuctionMessageTranslator(connection.getUser(),
-                        auctionEventListeners.announce())
-        );
+    public XMPPAuction(XMPPConnection connection, String auctionJID, XMPPFailureReporter failureReporter) {
+        this.failureReporter = failureReporter;
+        AuctionMessageTranslator translator = translatorFor(connection);
+        chat = connection.getChatManager().createChat(auctionJID, translator);
+        addAuctionEventListener(chatDisconnectorFor(translator));
     }
 
     @Override
@@ -35,6 +34,29 @@ public class XMPPAuction implements Auction {
 
     public void join() {
         sendMessage(JOIN_COMMAND_FORMAT);
+    }
+
+    private AuctionMessageTranslator translatorFor(XMPPConnection connection) {
+        return new AuctionMessageTranslator(connection.getUser(), auctionEventListeners.announce(), failureReporter);
+    }
+
+    private AuctionEventListener chatDisconnectorFor(final AuctionMessageTranslator translator) {
+        return new AuctionEventListener() {
+            @Override
+            public void auctionClosed() {
+                // empty method
+            }
+
+            @Override
+            public void currentPrice(int price, int increment, PriceSource from) {
+                // empty method
+            }
+
+            @Override
+            public void auctionFailed() {
+                chat.removeMessageListener(translator);
+            }
+        };
     }
 
     private void sendMessage(final String message) {

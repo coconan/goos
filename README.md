@@ -18,6 +18,6 @@
 5. [X] multiple items
 6. [X] add new items through the GUI
 7. [X] Stop bidding at stop price
-8. [ ] translator - invalid message from Auction
+8. [X] translator - invalid message from Auction
 9. [ ] translator - incorrect message version
 10. [ ] auction - handle XMPPException on send

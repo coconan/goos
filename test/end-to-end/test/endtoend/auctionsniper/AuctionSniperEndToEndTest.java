@@ -14,7 +14,7 @@ public class AuctionSniperEndToEndTest {
         application.startBiddingIn(auction, auction2);
         auction.hasReceivedJoinRequestFrom(ApplicationRunner.SNIPER_XMPP_ID);
         auction.announceClosed();
-        application.showsSniperHasLostAuction(auction, 0,0);
+        application.hasShownSniperHasLostAuction(auction, 0,0);
     }
 
     @Test
@@ -30,7 +30,7 @@ public class AuctionSniperEndToEndTest {
         auction.hasReceivedBid(1098, ApplicationRunner.SNIPER_XMPP_ID);
 
         auction.announceClosed();
-        application.showsSniperHasLostAuction(auction, 1000, 1098);
+        application.hasShownSniperHasLostAuction(auction, 1000, 1098);
     }
 
     @Test
@@ -49,7 +49,7 @@ public class AuctionSniperEndToEndTest {
         application.hasShownSniperIsWinning(auction, 1098); // winning bid
 
         auction.announceClosed();
-        application.showsSniperHasWonAuction(auction, 1098);  // last price
+        application.hasShownSniperHasWonAuction(auction, 1098);  // last price
     }
 
     @Test
@@ -76,8 +76,8 @@ public class AuctionSniperEndToEndTest {
         auction.announceClosed();
         auction2.announceClosed();
 
-        application.showsSniperHasWonAuction(auction, 1098);
-        application.showsSniperHasWonAuction(auction2, 521);
+        application.hasShownSniperHasWonAuction(auction, 1098);
+        application.hasShownSniperHasWonAuction(auction2, 521);
     }
 
     @Test
@@ -97,7 +97,35 @@ public class AuctionSniperEndToEndTest {
         application.hasShownSniperIsLosing(auction, 1207, 1098);
 
         auction.announceClosed();
-        application.showsSniperHasLostAuction(auction, 1207, 1098);
+        application.hasShownSniperHasLostAuction(auction, 1207, 1098);
+    }
+
+    @Test
+    public void sniperReportsInvalidAuctionMessageAndStopsRespondingToEvents() throws Exception {
+        String brokenMessage = "a broken message";
+        auction.startSellingItem();
+        auction2.startSellingItem();
+
+        application.startBiddingIn(auction, auction2);
+        auction.hasReceivedJoinRequestFrom(ApplicationRunner.SNIPER_XMPP_ID);
+
+        auction.reportPrice(500, 20, "other bidder");
+        auction.hasReceivedBid(520, ApplicationRunner.SNIPER_XMPP_ID);
+
+        auction.sendInvalidMessageContaining(brokenMessage);
+        application.hasShownSniperHasFailed(auction);
+
+        auction.reportPrice(520, 21, "other bidder");
+        waitForAnotherAuctionEvent();
+
+        application.reportsInvalidMessage(auction, brokenMessage);
+        application.hasShownSniperHasFailed(auction);
+    }
+
+    private void waitForAnotherAuctionEvent() throws Exception {
+        auction2.hasReceivedJoinRequestFrom(ApplicationRunner.SNIPER_XMPP_ID);
+        auction2.reportPrice(600, 6, "other bidder");
+        application.hasShownSniperIsBidding(auction2, 600, 606);
     }
 
     // Additional cleanup

@@ -184,6 +184,31 @@ public class AuctionSniperTest {
         sniper.auctionClosed();
     }
 
+    @Test
+    public void reportsFailedIfAuctionFailsWhenBidding() {
+        ignoringAuction();
+        allowingSniperBidding();
+
+        expectSniperToFailWhenItIs("bidding");
+
+        sniper.currentPrice(123, 45, AuctionEventListener.PriceSource.FromOtherBidder);
+        sniper.auctionFailed();
+    }
+
+    private void expectSniperToFailWhenItIs(final String state) {
+        context.checking(new Expectations() {{
+            atLeast(1).of(sniperListener).sniperStateChanged(
+                    new SniperSnapshot(ITEM_ID, 0, 0, FAILED));
+            when(sniperState.is(state));
+        }});
+    }
+
+    private void ignoringAuction() {
+        context.checking(new Expectations() {{
+            ignoring(auction);
+        }});
+    }
+
     private void allowingSniperBidding() {
         allowSniperStateChange(BIDDING, "bidding");
     }
